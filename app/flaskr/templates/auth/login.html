@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<h2>Вход в систему</h2>
+
+<form method="post">
+    <div style="margin-bottom: 10px;">
+        <label for="username">Имя пользователя:</label><br>
+        <input type="text" id="username" name="username" required
+               style="width: 100%; padding: 5px;">
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+        <label for="password">Пароль:</label><br>
+        <input type="password" id="password" name="password" required
+               style="width: 100%; padding: 5px;">
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+        <input type="checkbox" id="remember" name="remember">
+        <label for="remember">Запомнить меня</label>
+    </div>
+    
+    <button type="submit" style="padding: 10px 20px;">Войти</button>
+</form>
+
+<p style="margin-top: 20px;">
+    Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрируйтесь</a>
+</p>
+{% endblock %}

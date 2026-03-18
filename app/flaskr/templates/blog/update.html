@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать пост{% endblock %}
+
+{% block content %}
+<h2>Редактировать пост</h2>
+
+<form method="post">
+    <div style="margin-bottom: 10px;">
+        <label for="title">Заголовок:</label><br>
+        <input type="text" id="title" name="title" value="{{ post.title }}" required
+               style="width: 100%; padding: 5px;">
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+        <label for="body">Текст:</label><br>
+        <textarea id="body" name="body" rows="10" required
+                  style="width: 100%; padding: 5px;">{{ post.body }}</textarea>
+    </div>
+    
+    <button type="submit" style="padding: 10px 20px;">Сохранить</button>
+    <a href="{{ url_for('blog.index') }}" style="padding: 10px 20px;">Отмена</a>
+</form>
+{% endblock %}
