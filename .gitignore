@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+.env
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+*.logs
+
+# Docker
+*.pid
+*.sock
+
+# Secrets
+*.key
+*.pem
+*.crt
+secrets/
