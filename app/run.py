@@ -7,8 +7,8 @@ if __name__ == '__main__':
     # Режим отладки из переменной окружения
     debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
-    # Хост для привязки: по умолчанию 127.0.0.1, но можно задать через переменную
-    host = os.environ.get('FLASK_HOST', '127.0.0.1')
+    # Хост для привязки:
+    host = os.environ.get('FLASK_HOST', '0.0.0.0')
 
     # Порт (тоже можно сделать настраиваемым для гибкости)
     port = int(os.environ.get('FLASK_PORT', 5000))
