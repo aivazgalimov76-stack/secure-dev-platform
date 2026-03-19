@@ -29,10 +29,8 @@ jobs:
         working-directory: ./app
         run: |
           pip install bandit
-          # Игнорируем ошибку bandit, чтобы продолжить выполнение
-          bandit -r . -f json -o bandit-report.json || true
-          echo "===== СОДЕРЖИМОЕ ОТЧЁТА BANDIT ====="
-          cat bandit-report.json
+          bandit -r . -f json -o bandit-report.json
+          
 
           name: bandit-report
           path: app/bandit-report.json
