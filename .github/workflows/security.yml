@@ -1,63 +1,51 @@
-# Имя нашего workflow (будет видно в GitHub)
 name: Security Checks
 
-# Когда запускать этот workflow
 on:
-  push:                    # При каждом пуше (отправке кода)
-    branches: [ main ]     # Только для ветки main
-  pull_request:            # При создании pull request
-    branches: [ main ]     # Только для ветки main
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-# Что мы будем делать
 jobs:
   security:
-    # Запускаем на виртуальной машине с Ubuntu
-    # (GitHub предоставляет её бесплатно)
     runs-on: ubuntu-latest
     
-    # Все шаги выполняются по порядку
     steps:
-      # Шаг 1: Копируем код из репозитория
       - name: Checkout code
         uses: actions/checkout@v3
       
-      # Шаг 2: Устанавливаем Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # Версия Python
+          python-version: '3.10'
       
-      # Шаг 3: Устанавливаем зависимости нашего приложения
+      # ИСПРАВЛЕНО: Добавлен working-directory
       - name: Install dependencies
+        working-directory: ./app
         run: |
-          cd app
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        working-directory: ./app
       
-      # Шаг 4: SAST проверка Bandit (ищем уязвимости в коде)
+      # ИСПРАВЛЕНО: Добавлен working-directory
       - name: Run Bandit SAST
+        working-directory: ./app
         run: |
-          cd app
           pip install bandit
           bandit -r . -f json -o bandit-report.json
       
-      # Шаг 5: Сохраняем отчет Bandit как артефакт
       - name: Upload Bandit report
         uses: actions/upload-artifact@v4
         with:
           name: bandit-report
           path: app/bandit-report.json
       
-      # Шаг 6: SCA проверка Trivy (проверяем зависимости)
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'           # Сканируем файловую систему
-          scan-ref: './app'          # Путь к папке с приложением
-          format: 'table'            # Формат вывода
-          severity: 'HIGH,CRITICAL'  # Только высокие и критические уязвимости
+          scan-type: 'fs'
+          scan-ref: './app'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
       
-      # Шаг 7: Проверка секретов Gitleaks
       - name: Run Gitleaks
         uses: zricethezav/gitleaks-action@v2
