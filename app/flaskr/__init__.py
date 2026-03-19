@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
-
+from flaskr.logger import setup_logging  
 # Создаем объекты расширений
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -19,6 +19,9 @@ def create_app(config_class=Config):
     # Инициализируем расширения
     db.init_app(app)
     login_manager.init_app(app)
+
+    # настройка логирования
+    setup_logging(app)
     
     # Настройка login manager
     login_manager.login_view = 'auth.login'

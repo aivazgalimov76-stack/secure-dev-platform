@@ -1,0 +1,65 @@
+# docker-compose.yml
+version: '3.8'  # Версия формата docker-compose
+
+services:
+  # 1. Elasticsearch - Поисковый движок и хранилище данных
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node          # Режим одного узла (для разработки)
+      - xpack.security.enabled=false        # Отключаем безопасность (для простоты)
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"    # Выделяем память для Java
+    ports:
+      - "9200:9200"   # HTTP API (для запросов)
+      - "9300:9300"   # Внутренний транспорт
+    networks:
+      - elk-network
+    volumes:
+      - es-data:/usr/share/elasticsearch/data   # Сохраняем данные между запусками
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # 2. Logstash - Обработчик логов
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: logstash
+    ports:
+      - "5002:5002/tcp"   # Порт для приема логов от нашего приложения
+      - "5002:5002/udp"
+    volumes:
+      # Подключаем конфигурацию из локальной папки
+      - ./logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    environment:
+      - "LS_JAVA_OPTS=-Xms256m -Xmx256m"     # Память для Logstash
+    depends_on:
+      elasticsearch:
+        condition: service_healthy           # Ждем, пока Elasticsearch будет готов
+    networks:
+      - elk-network
+
+  # 3. Kibana - Визуализация и веб-интерфейс
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: kibana
+    ports:
+      - "5601:5601"      # Веб-интерфейс
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200   # Адрес Elasticsearch
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - elk-network
+
+# Создаем сеть для общения контейнеров
+networks:
+  elk-network:
+    driver: bridge
+
+# Создаем том для постоянного хранения данных Elasticsearch
+volumes:
+  es-data:

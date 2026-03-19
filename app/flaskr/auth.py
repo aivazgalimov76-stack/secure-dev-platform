@@ -12,6 +12,15 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
+
+        # логируем попытку регистрации
+        from flask import current_app
+        current_app.logger.info('Registration attempt', extra={
+            'event': 'register_attempt',
+            'username': username,
+            'email': email,
+            'ip': request.remote_addr
+        })
         
         # Проверяем, существует ли пользователь
         existing_user = User.query.filter(
@@ -32,6 +41,13 @@ def register():
         
         db.session.add(new_user)
         db.session.commit()
+
+        # логируем успешную регистрацию
+        current_app.logger.info('Registration successful', extra={
+            'event': 'register_success',
+            'username': username,
+            'user_id': new_user.id
+        })
         
         flash('Регистрация успешна!')
         return redirect(url_for('auth.login'))
@@ -44,14 +60,37 @@ def login():
         username = request.form['username']
         password = request.form['password']
         remember = True if request.form.get('remember') else False
+
+        # логируем попытку входа
+        from flask import current_app
+        current_app.logger.info('Login attempt', extra={
+            'event': 'login_attempt',
+            'username': username,
+            'ip': request.remote_addr
+        })
         
         user = User.query.filter_by(username=username).first()
         
         if not user or not check_password_hash(user.password_hash, password):
+            # логируем неудачный вход
+            current_app.logger.warning('Login failed', extra={
+                'event': 'login_failed',
+                'username': username,
+                'ip': request.remote_addr
+            })
             flash('Неверные данные')
             return redirect(url_for('auth.login'))
         
         login_user(user, remember=remember)
+        
+        # логируем успешный вход
+        current_app.logger.info('Login successful', extra={
+            'event': 'login_success',
+            'username': username,
+            'user_id': user.id,
+            'ip': request.remote_addr
+        })
+        
         return redirect(url_for('blog.index'))
     
     return render_template('auth/login.html')
@@ -62,4 +101,3 @@ def logout():
     logout_user()
     flash('Вы вышли из системы')
     return redirect(url_for('blog.index'))
-
