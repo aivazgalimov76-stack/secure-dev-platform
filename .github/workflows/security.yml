@@ -29,8 +29,7 @@ jobs:
         working-directory: ./app
         run: |
           pip install bandit
-          bandit -r . -f json -o bandit-report.json || true
-          echo "===== BANDIT REPORT ====="
+          bandit -r . -f json -o bandit-report.json
           cat bandit-report.json
       
       - name: Upload Bandit report
