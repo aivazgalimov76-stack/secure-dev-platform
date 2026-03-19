@@ -4,9 +4,13 @@ import os
 app = create_app()
 
 if __name__ == '__main__':
-    # Используем debug только в разработке, не в продакшене
+    # Режим отладки из переменной окружения
     debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
-    # Для продакшена используем только localhost
-    host = '127.0.0.1' if not debug_mode else '0.0.0.0'
-    
-    app.run(debug=debug_mode, host=host, port=5000)
+
+    # Хост для привязки: по умолчанию 127.0.0.1, но можно задать через переменную
+    host = os.environ.get('FLASK_HOST', '127.0.0.1')
+
+    # Порт (тоже можно сделать настраиваемым для гибкости)
+    port = int(os.environ.get('FLASK_PORT', 5000))
+
+    app.run(debug=debug_mode, host=host, port=port)
