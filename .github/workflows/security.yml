@@ -1,0 +1,62 @@
+# Имя нашего workflow (будет видно в GitHub)
+name: Security Checks
+
+# Когда запускать этот workflow
+on:
+  push:                    # При каждом пуше (отправке кода)
+    branches: [ main ]     # Только для ветки main
+  pull_request:            # При создании pull request
+    branches: [ main ]     # Только для ветки main
+
+# Что мы будем делать
+jobs:
+  security:
+    # Запускаем на виртуальной машине с Ubuntu
+    # (GitHub предоставляет её бесплатно)
+    runs-on: ubuntu-latest
+    
+    # Все шаги выполняются по порядку
+    steps:
+      # Шаг 1: Копируем код из репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # Шаг 2: Устанавливаем Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'  # Версия Python
+      
+      # Шаг 3: Устанавливаем зависимости нашего приложения
+      - name: Install dependencies
+        run: |
+          cd app
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      # Шаг 4: SAST проверка Bandit (ищем уязвимости в коде)
+      - name: Run Bandit SAST
+        run: |
+          cd app
+          pip install bandit
+          bandit -r . -f json -o bandit-report.json
+      
+      # Шаг 5: Сохраняем отчет Bandit как артефакт
+      - name: Upload Bandit report
+        uses: actions/upload-artifact@v3
+        with:
+          name: bandit-report
+          path: app/bandit-report.json
+      
+      # Шаг 6: SCA проверка Trivy (проверяем зависимости)
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'           # Сканируем файловую систему
+          scan-ref: './app'          # Путь к папке с приложением
+          format: 'table'            # Формат вывода
+          severity: 'HIGH,CRITICAL'  # Только высокие и критические уязвимости
+      
+      # Шаг 7: Проверка секретов Gitleaks
+      - name: Run Gitleaks
+        uses: zricethezav/gitleaks-action@v2
