@@ -40,7 +40,7 @@ def setup_logging(app):
     # 2. Logstash handler (отправляет логи в Logstash)
     try:
         logstash_handler = logstash.LogstashHandler(
-            host='localhost',
+            host='logstash',
             port=5002,
             version=1
         )

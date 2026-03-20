@@ -1,20 +1,16 @@
 FROM python:3.10-slim
 
-ENV PYTHONUNBUFFERED=1
-
 WORKDIR /app
 
 COPY requirements.txt .
 
-# МЕНЯЕМ НА ALIYUN (самое стабильное зеркало)
-RUN pip config set global.index-url http://mirrors.aliyun.com/pypi/simple/
-RUN pip config set global.trusted-host mirrors.aliyun.com
-
-# Устанавливаем зависимости
-RUN pip install --default-timeout=100 --no-cache-dir -r requirements.txt
+# Устанавливаем зависимости с зеркалом Aliyun
+RUN pip install --no-cache-dir -r requirements.txt \
+    -i http://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com
 
 COPY . .
 
-EXPOSE 5000
+EXPOSE 5001
 
-CMD ["python", "run.py"]
+CMD ["python", "run.py", "--port=5001"]

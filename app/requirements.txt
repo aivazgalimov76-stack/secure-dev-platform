@@ -13,6 +13,7 @@ mdurl==0.1.2
 Pygments==2.19.2
 python-dotenv==1.2.2
 python-json-logger==4.0.0
+python-logstash==0.4.8
 PyYAML==6.0.3
 rich==14.3.3
 SQLAlchemy==2.0.48

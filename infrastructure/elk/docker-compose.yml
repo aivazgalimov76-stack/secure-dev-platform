@@ -55,6 +55,21 @@ services:
     networks:
       - elk-network
 
+  flask:
+    build: ../../app
+    container_name: flask-app
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5001
+    networks:
+      - elk-network
+    depends_on:
+      - logstash
+
+
+
 # Создаем сеть для общения контейнеров
 networks:
   elk-network:
